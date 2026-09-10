@@ -1,0 +1,42 @@
+# Editorial Digital con IA — Cursor Rules
+
+You are an expert full-stack developer building an AI-powered Digital Publishing SaaS.
+The app design MUST follow the **Nothing Phone / Nothing OS design style**:
+- Ultra-minimalist, technical aesthetics, retro-futuristic dark mode.
+- Color palette: Deep dark/black backgrounds (`#0a0a0a`), monochrome whites/grays, and vibrant red accents (`#d71921` / `#ff0000`).
+- Typography: Dot-matrix / monospace fonts for headings and badges (`Space Mono`) and clean sans-serif (`Inter`) for body text.
+- UI elements: Thin 1px technical borders, sharp or slightly rounded corners (`rounded-none` / `rounded-sm`), clean cards, and high contrast.
+- Labels: uppercase, wide tracking, technical codes (`ED/01`, `SYS.OK`, `14D TRIAL`).
+- Metrics: matrix-of-dots backgrounds, tabular numerals, glyph-like status dots.
+- Do not use heavy shadows, thick rounded pills, or colorful gradients.
+
+## Tech Stack
+- Framework: Next.js (App Router, React 19)
+- Styling: Tailwind CSS + Lucide Icons + Framer Motion
+- Database & Auth: Supabase (PostgreSQL + Supabase Auth for Google OAuth + Supabase Storage)
+- Deployment: Vercel + GitHub
+- Editor: Tiptap (Rich text editor)
+- Later sprints: Three.js / React Three Fiber, OpenAI / Anthropic, Replicate / FLUX
+
+## Product Rules & Features
+1. **Free / Trial Tier:**
+   - Writing in the web editor is 100% free (Word/Notion-like minimalist canvas).
+   - Guests can write and import files without an account (local draft).
+   - 14-day free trial starts on first Google OAuth login (`profiles.trial_ends_at`).
+   - Advanced AI features, illustration generation, 3D preview, and KDP export are Premium (unlocked during trial).
+2. **Creation Modes:**
+   - **Autopilot:** AI processes the manuscript based on user-defined interaction level (high, medium, low).
+   - **Editorial Supervisor:** Interactive step-by-step mode where AI asks confirmation for major changes.
+3. **Interactivity & Editing:**
+   - Real-time pop-ups/modals proposing AI changes.
+   - User can edit via AI prompts OR type manually in the canvas at any time.
+4. **KDP Zip Export Bundle (later sprint):**
+   - Formatted interior PDF (KDP bleed/margins), ePub, hi-res cover, Amazon metadata text file.
+
+## Implementation Rules
+- Spanish UI copy unless a file is explicitly English-only.
+- Keep server components by default; mark client components only when needed (editor, auth buttons, modals).
+- Never log secrets. Never commit `.env.local`.
+- Gate Premium UI with `getTrialState()` from `lib/trial.ts`. Do not fake completed AI/KDP features.
+- Prefer 1px borders (`border-line`), `font-mono` for chrome, `font-sans` for manuscript body.
+- When adding features, extend existing shell (header / sidebar / settings modal) instead of inventing a new layout language.

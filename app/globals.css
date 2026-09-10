@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-void: #0a0a0a;
+  --color-panel: #111111;
+  --color-raised: #161616;
+  --color-line: #2a2a2a;
+  --color-ghost: #8a8a8a;
+  --color-paper: #ececec;
+  --color-signal: #d71921;
+  --color-signal-hot: #ff0000;
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-space-mono);
+}
+
+* {
+  border-radius: 0;
+}
+
+button,
+input,
+textarea {
+  border-radius: 0;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.dot-matrix {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.16) 0.7px, transparent 0.7px);
+  background-size: 6px 6px;
+}
+
+.glyph-scan {
+  background-image:
+    linear-gradient(rgba(215, 25, 33, 0.08) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.12) 0.6px, transparent 0.6px);
+  background-size: 100% 12px, 5px 5px;
+}
+
+.technical-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.tiptap {
+  outline: none;
+  min-height: 70vh;
+  color: #111;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #9a9a9a;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap h1 {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 1.6rem 0 0.8rem;
+}
+
+.tiptap h2 {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 1.4rem 0 0.6rem;
+}
+
+.tiptap p {
+  margin: 0 0 0.9rem;
+}
+
+.tiptap blockquote {
+  border-left: 1px solid #d71921;
+  color: #444;
+  margin: 1.2rem 0;
+  padding-left: 1rem;
+}
+
+.tiptap ul,
+.tiptap ol {
+  margin: 0 0 1rem 1.25rem;
+}
+
+.tiptap li {
+  margin: 0.2rem 0;
+}
+
+.tiptap hr {
+  border: 0;
+  border-top: 1px solid #ddd;
+  margin: 2rem 0;
+}
