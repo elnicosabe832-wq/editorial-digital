@@ -9,6 +9,8 @@ import {
   ManuscriptEditor,
   type EditorApi,
 } from "@/components/editor/ManuscriptEditor";
+import { ProposalModal } from "@/components/editor/ProposalModal";
+import { AiPromptBar } from "@/components/editor/AiPromptBar";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import {
@@ -18,6 +20,7 @@ import {
   loadGuestDraft,
   saveGuestDraft,
 } from "@/lib/manuscript";
+import { SAMPLE_BOOK } from "@/lib/sample-book";
 import {
   defaultSettings,
   loadSettings,
@@ -26,6 +29,12 @@ import {
   type EditorSettings,
 } from "@/lib/settings";
 import { getTrialState } from "@/lib/trial";
+import {
+  applyProposalToHtml,
+  autoApplyProposals,
+  proposalsToConfirm,
+  type EditorialProposal,
+} from "@/lib/editorial";
 import type { Manuscript, Profile } from "@/types/database";
 
 export type EditorSession = {
@@ -56,6 +65,11 @@ export function EditorApp({ user, profile }: EditorSession) {
   const [error, setError] = useState<string | null>(null);
   const [bootstrapped, setBootstrapped] = useState(false);
   const [api, setApi] = useState<EditorApi | null>(null);
+  const [aiRunning, setAiRunning] = useState(false);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiProvider, setAiProvider] = useState<string | null>(null);
+  const [queue, setQueue] = useState<EditorialProposal[]>([]);
+  const [queueIndex, setQueueIndex] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<number | null>(null);
   const skipSaveRef = useRef(true);
@@ -209,6 +223,14 @@ export function EditorApp({ user, profile }: EditorSession) {
     }
   }
 
+  function handleLoadSample() {
+    setError(null);
+    setTitle(SAMPLE_BOOK.title);
+    latestRef.current.title = SAMPLE_BOOK.title;
+    api?.setHtml(SAMPLE_BOOK.html);
+    setSavingLabel(user ? "SAMPLE // UNSAVED" : "SAMPLE // LOCAL");
+  }
+
   function handleNew() {
     setManuscriptId(null);
     latestRef.current.manuscriptId = null;
@@ -235,6 +257,101 @@ export function EditorApp({ user, profile }: EditorSession) {
     setSettings(next);
     saveSettings(next);
   }
+
+  async function runAi(userPrompt?: string) {
+    if (!api || !trial.premiumUnlocked) {
+      setError(
+        trial.premiumUnlocked
+          ? "El lienzo aún no está listo."
+          : "La IA editorial es Premium. Entra con premium@ed-ia.app",
+      );
+      return;
+    }
+
+    const text = api.getText().trim();
+    if (!text) {
+      setError("Escribe o carga un manuscrito antes de lanzar la IA.");
+      return;
+    }
+
+    setError(null);
+    setAiRunning(true);
+    setQueue([]);
+    setQueueIndex(0);
+
+    try {
+      const response = await fetch("/api/editorial", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title,
+          text,
+          html: api.getHtml(),
+          mode: settings.mode,
+          interaction: settings.interaction,
+          language: settings.language,
+          userPrompt,
+        }),
+      });
+      const payload = (await response.json()) as {
+        error?: string;
+        summary?: string;
+        revisedHtml?: string;
+        proposals?: EditorialProposal[];
+        provider?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "La IA editorial falló");
+      }
+
+      const proposals = payload.proposals ?? [];
+      const html = api.getHtml();
+      const nextHtml = autoApplyProposals(
+        payload.revisedHtml && settings.mode === "autopilot" && settings.interaction === "low"
+          ? payload.revisedHtml
+          : html,
+        proposals,
+        settings.mode,
+        settings.interaction,
+      );
+
+      if (nextHtml !== html) {
+        api.setHtml(nextHtml);
+      }
+
+      const pending = proposalsToConfirm(proposals, settings.mode, settings.interaction);
+      setAiSummary(payload.summary ?? null);
+      setAiProvider(payload.provider ?? null);
+      setQueue(pending);
+      setQueueIndex(0);
+
+      if (pending.length === 0 && proposals.length === 0) {
+        setSavingLabel("AI // SIN CAMBIOS");
+      } else if (pending.length === 0) {
+        setSavingLabel("AI // APLICADO");
+        setQueueIndex(0);
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "La IA editorial falló");
+    } finally {
+      setAiRunning(false);
+    }
+  }
+
+  function advanceQueue() {
+    setQueueIndex((current) => current + 1);
+  }
+
+  function acceptProposal() {
+    const proposal = queue[queueIndex];
+    if (!proposal || !api) return;
+    api.setHtml(applyProposalToHtml(api.getHtml(), proposal));
+    advanceQueue();
+  }
+
+  const activeProposal = queue[queueIndex] ?? null;
+  const proposalOpen = Boolean(activeProposal);
 
   return (
     <div className="flex min-h-screen flex-col bg-void">
@@ -263,8 +380,11 @@ export function EditorApp({ user, profile }: EditorSession) {
           premiumUnlocked={trial.premiumUnlocked}
           trial={trial}
           onNew={handleNew}
+          onLoadSample={handleLoadSample}
           onImportClick={() => fileRef.current?.click()}
           onModeChange={handleModeChange}
+          onRunAi={() => void runAi()}
+          aiRunning={aiRunning}
         />
 
         {sidebarOpen ? (
@@ -311,6 +431,13 @@ export function EditorApp({ user, profile }: EditorSession) {
               </p>
             ) : null}
 
+            {aiSummary && queue.length === 0 && !aiRunning ? (
+              <p className="mb-4 border border-line px-3 py-2 font-mono text-[11px] leading-5 tracking-wide text-ghost">
+                {aiProvider ? `${aiProvider.toUpperCase()} // ` : ""}
+                {aiSummary}
+              </p>
+            ) : null}
+
             <div className="relative">
               <ManuscriptEditor onReady={handleReady} onUpdate={handleUpdate} />
               {importing ? (
@@ -325,7 +452,25 @@ export function EditorApp({ user, profile }: EditorSession) {
                   <p className="font-mono text-xs tracking-[0.24em]">DROP MANUSCRIPT</p>
                 </div>
               ) : null}
+              {aiRunning ? (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/55">
+                  <p className="border border-line bg-void px-4 py-3 font-mono text-xs tracking-[0.2em]">
+                    ANALIZANDO MANUSCRITO…
+                  </p>
+                </div>
+              ) : null}
             </div>
+
+            <AiPromptBar
+              disabled={!trial.premiumUnlocked}
+              running={aiRunning}
+              lockedMessage={
+                trial.premiumUnlocked
+                  ? undefined
+                  : "Premium bloqueado. Entra en /login con la cuenta de prueba."
+              }
+              onRun={(prompt) => void runAi(prompt)}
+            />
           </div>
         </main>
       </div>
@@ -349,6 +494,20 @@ export function EditorApp({ user, profile }: EditorSession) {
         signedIn={Boolean(user)}
         onClose={() => setSettingsOpen(false)}
         onChange={handleSettingsChange}
+      />
+      <ProposalModal
+        open={proposalOpen}
+        index={queueIndex}
+        total={queue.length}
+        proposal={activeProposal}
+        summary={queueIndex === 0 ? aiSummary ?? undefined : undefined}
+        provider={aiProvider ?? undefined}
+        onAccept={acceptProposal}
+        onReject={advanceQueue}
+        onStop={() => {
+          setQueue([]);
+          setQueueIndex(0);
+        }}
       />
     </div>
   );

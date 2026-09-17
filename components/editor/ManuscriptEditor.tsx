@@ -26,6 +26,8 @@ export type EditorApi = {
   setJson: (json: JSONContent) => void;
   clear: () => void;
   getJson: () => JSONContent;
+  getHtml: () => string;
+  getText: () => string;
 };
 
 function ToolbarButton({
@@ -90,6 +92,8 @@ export function ManuscriptEditor({
       setJson: (json) => editor.commands.setContent(json),
       clear: () => editor.commands.clearContent(true),
       getJson: () => editor.getJSON(),
+      getHtml: () => editor.getHTML(),
+      getText: () => editor.getText({ blockSeparator: "\n\n" }),
     });
   }, [editor, onReady]);
 

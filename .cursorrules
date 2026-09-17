@@ -16,7 +16,8 @@ The app design MUST follow the **Nothing Phone / Nothing OS design style**:
 - Database & Auth: Supabase (PostgreSQL + Supabase Auth for Google OAuth + Supabase Storage)
 - Deployment: Vercel + GitHub
 - Editor: Tiptap (Rich text editor)
-- Later sprints: Three.js / React Three Fiber, OpenAI / Anthropic, Replicate / FLUX
+- Later sprints: Three.js / React Three Fiber, Replicate / FLUX
+- AI: Anthropic Claude (preferred) or OpenAI; local editorial engine if no key
 
 ## Product Rules & Features
 1. **Free / Trial Tier:**
@@ -28,8 +29,10 @@ The app design MUST follow the **Nothing Phone / Nothing OS design style**:
    - **Autopilot:** AI processes the manuscript based on user-defined interaction level (high, medium, low).
    - **Editorial Supervisor:** Interactive step-by-step mode where AI asks confirmation for major changes.
 3. **Interactivity & Editing:**
-   - Real-time pop-ups/modals proposing AI changes.
-   - User can edit via AI prompts OR type manually in the canvas at any time.
+   - Real-time pop-ups/modals proposing AI changes (`ProposalModal`).
+   - User can edit via AI prompts (`AiPromptBar`) OR type manually in the canvas at any time.
+   - Autopilot + interaction level: high confirms all, medium auto-applies minor, low auto-applies the pass.
+   - Gate `/api/editorial` with `getTrialState().premiumUnlocked`.
 4. **KDP Zip Export Bundle (later sprint):**
    - Formatted interior PDF (KDP bleed/margins), ePub, hi-res cover, Amazon metadata text file.
 

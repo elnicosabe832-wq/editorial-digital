@@ -94,13 +94,13 @@ export function SettingsModal({
                 ? `Prueba Premium: ${trial.daysLeft} días restantes.`
                 : trial.plan === "premium"
                   ? "Funciones avanzadas desbloqueadas."
-                  : "El editor sigue gratis. La IA, 3D y KDP son Premium."}
+                  : "El editor sigue gratis. La IA editorial es Premium."}
             </>
           ) : (
             <>
               GUEST // escritura 100% gratis.
               <br />
-              Login con Google = 14 días de prueba para funciones Premium.
+              Login Premium o Google = IA editorial y 14 días de prueba.
             </>
           )}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FileUp, Lock, PenLine, Plus } from "lucide-react";
+import { FileUp, Lock, PenLine, Plus, Sparkles, LoaderCircle } from "lucide-react";
 import { GlyphGrid } from "@/components/ui/GlyphGrid";
 import type { CreationMode } from "@/lib/settings";
 import type { TrialState } from "@/lib/trial";
@@ -14,8 +14,11 @@ type AppSidebarProps = {
   premiumUnlocked: boolean;
   trial: TrialState;
   onNew: () => void;
+  onLoadSample: () => void;
   onImportClick: () => void;
   onModeChange: (mode: CreationMode) => void;
+  onRunAi: () => void;
+  aiRunning?: boolean;
 };
 
 function Metric({ label, value }: { label: string; value: string }) {
@@ -37,8 +40,11 @@ export function AppSidebar({
   premiumUnlocked,
   trial,
   onNew,
+  onLoadSample,
   onImportClick,
   onModeChange,
+  onRunAi,
+  aiRunning = false,
 }: AppSidebarProps) {
   const pages = Math.max(1, Math.ceil(wordCount / 250));
 
@@ -68,10 +74,14 @@ export function AppSidebar({
               <FileUp className="h-3.5 w-3.5" />
               Importar archivo
             </button>
-            <div className="inline-flex h-10 items-center gap-2 border border-dashed border-line px-3 font-mono text-[10px] tracking-[0.2em] text-ghost uppercase">
+            <button
+              type="button"
+              onClick={onLoadSample}
+              className="inline-flex h-10 items-center gap-2 border border-line px-3 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-white/40"
+            >
               <PenLine className="h-3.5 w-3.5" />
-              Escritura libre
-            </div>
+              Cargar muestra
+            </button>
           </div>
         </section>
 
@@ -116,11 +126,20 @@ export function AppSidebar({
           </div>
           <p className="mt-3 font-mono text-[10px] leading-5 tracking-wide text-ghost">
             {premiumUnlocked
-              ? "IA editorial se activa en el siguiente sprint."
+              ? "Supervisor confirma cada cambio mayor. Autopilot aplica según el nivel (alto/medio/bajo)."
               : trial.plan === "guest"
-                ? "Entra con Google para 14 días de prueba Premium."
+                ? "Entra con la cuenta Premium para lanzar la IA editorial."
                 : "Trial agotado. El lienzo sigue siendo gratis."}
           </p>
+          <button
+            type="button"
+            onClick={onRunAi}
+            disabled={!premiumUnlocked || aiRunning}
+            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 bg-white px-3 font-mono text-[10px] tracking-[0.18em] text-black uppercase disabled:opacity-30"
+          >
+            {aiRunning ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            {aiRunning ? "Analizando" : "Ejecutar IA"}
+          </button>
         </section>
 
         <div className="mt-auto border-t border-line p-4">
@@ -129,6 +148,7 @@ export function AppSidebar({
             <span className="h-2 w-2 bg-signal" />
             CANVAS // ONLINE
           </div>
+          <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ghost">EDITORIAL // ED/IA</p>
         </div>
       </div>
     </aside>

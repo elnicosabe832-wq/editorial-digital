@@ -10,9 +10,17 @@ type ModalProps = {
   code?: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 };
 
-export function Modal({ open, title, code = "CFG/01", onClose, children }: ModalProps) {
+export function Modal({
+  open,
+  title,
+  code = "CFG/01",
+  onClose,
+  children,
+  className = "max-w-lg",
+}: ModalProps) {
   return (
     <AnimatePresence>
       {open ? (
@@ -29,7 +37,7 @@ export function Modal({ open, title, code = "CFG/01", onClose, children }: Modal
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.18 }}
             onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-lg border border-line bg-void"
+            className={`w-full border border-line bg-void ${className}`}
           >
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <div>

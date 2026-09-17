@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { GoogleButton } from "@/components/auth/GoogleButton";
 import { GlyphGrid } from "@/components/ui/GlyphGrid";
 
 export default function HomePage() {
@@ -32,9 +31,8 @@ export default function HomePage() {
           <span className="text-signal"> PUBLICA.</span>
         </h1>
         <p className="mt-6 max-w-xl text-base leading-7 text-ghost">
-          Lienzo minimalista estilo Word/Notion. Empieza gratis, sube tu
-          manuscrito y activa 14 días de prueba Premium con Google. La IA
-          editorial, el preview 3D y el pack KDP llegan en los siguientes sprints.
+          Lienzo minimalista estilo Word/Notion. Escribe gratis, sube tu
+          manuscrito o entra Premium y lanza la IA editorial (Supervisor o Autopilot).
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-start">
@@ -44,13 +42,18 @@ export default function HomePage() {
           >
             Escribir gratis
           </Link>
-          <GoogleButton next="/editor" label="Entrar con Google" variant="ghost" />
+          <Link
+            href="/login"
+            className="inline-flex h-11 items-center justify-center border border-line px-6 font-mono text-[11px] tracking-[0.22em] text-white uppercase hover:border-white/40"
+          >
+            Probar IA premium
+          </Link>
         </div>
 
         <div className="mt-16 grid gap-px border border-line bg-line sm:grid-cols-3">
           {[
             ["01", "CANVAS LIBRE", "Escribe o importa .docx / .txt / .pdf"],
-            ["02", "TRIAL 14D", "Google OAuth. Premium temporal."],
+            ["02", "IA EDITORIAL", "Supervisor o Autopilot. Tú confirmas."],
             ["03", "KDP READY", "PDF, ePub y cover en sprints posteriores"],
           ].map(([code, title, copy]) => (
             <article key={code} className="bg-void p-5">
