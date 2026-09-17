@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { TrialState } from "@/lib/trial";
 
 type TrialMeterProps = {
@@ -5,12 +8,26 @@ type TrialMeterProps = {
 };
 
 export function TrialMeter({ state }: TrialMeterProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const fill =
     state.plan === "premium"
       ? 100
       : state.plan === "trial" && state.daysLeft != null
         ? Math.round((state.daysLeft / 14) * 100)
         : 0;
+
+  if (!mounted) {
+    return (
+      <span className="border border-line px-2 py-1 font-mono text-[10px] tracking-[0.18em] text-white">
+        {state.label}
+      </span>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3">

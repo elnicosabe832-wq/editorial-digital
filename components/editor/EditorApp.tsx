@@ -1,14 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { JSONContent } from "@tiptap/react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { SettingsModal } from "@/components/layout/SettingsModal";
-import {
-  ManuscriptEditor,
-  type EditorApi,
-} from "@/components/editor/ManuscriptEditor";
+import type { EditorApi } from "@/components/editor/ManuscriptEditor";
 import { ProposalModal } from "@/components/editor/ProposalModal";
 import { AiPromptBar } from "@/components/editor/AiPromptBar";
 import { createClient } from "@/lib/supabase/client";
@@ -36,6 +34,19 @@ import {
   type EditorialProposal,
 } from "@/lib/editorial";
 import type { Manuscript, Profile } from "@/types/database";
+
+const ManuscriptEditor = dynamic(
+  () =>
+    import("@/components/editor/ManuscriptEditor").then((mod) => mod.ManuscriptEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[70vh] border border-black/10 bg-paper px-8 py-10 text-black/40">
+        <p className="font-mono text-xs tracking-[0.2em]">BOOTING CANVAS…</p>
+      </div>
+    ),
+  },
+);
 
 export type EditorSession = {
   user: {

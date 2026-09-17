@@ -4,7 +4,7 @@ import { useEditor, EditorContent, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Bold,
   Heading1,
@@ -55,7 +55,26 @@ function ToolbarButton({
   );
 }
 
-export function ManuscriptEditor({
+function BootScreen() {
+  return (
+    <div className="min-h-[70vh] border border-black/10 bg-paper px-8 py-10 text-black/40">
+      <p className="font-mono text-xs tracking-[0.2em]">BOOTING CANVAS…</p>
+    </div>
+  );
+}
+
+export function ManuscriptEditor(props: ManuscriptEditorProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <BootScreen />;
+  return <ManuscriptCanvas {...props} />;
+}
+
+function ManuscriptCanvas({
   initialContent,
   onReady,
   onUpdate,
@@ -97,13 +116,7 @@ export function ManuscriptEditor({
     });
   }, [editor, onReady]);
 
-  if (!editor) {
-    return (
-      <div className="min-h-[70vh] border border-black/10 bg-paper px-8 py-10 text-black/40">
-        <p className="font-mono text-xs tracking-[0.2em]">BOOTING CANVAS…</p>
-      </div>
-    );
-  }
+  if (!editor) return <BootScreen />;
 
   return (
     <div className="border border-black/10 bg-paper text-black shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">

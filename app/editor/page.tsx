@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { EditorApp } from "@/components/editor/EditorApp";
+import { EditorShell } from "@/components/editor/EditorShell";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditorPage() {
   if (!isSupabaseConfigured()) {
-    return <EditorApp user={null} profile={null} />;
+    return <EditorShell user={null} profile={null} />;
   }
 
   const supabase = await createClient();
@@ -25,7 +25,7 @@ export default async function EditorPage() {
   }
 
   return (
-    <EditorApp
+    <EditorShell
       user={
         user
           ? {
