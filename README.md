@@ -72,6 +72,7 @@ No subas `.env.local`.
 | --- | --- |
 | `/` | Landing Nothing Tech |
 | `/login` | Email Premium o Google OAuth |
+
 | `/editor` | Lienzo + IA editorial |
 | `/auth/callback` | Intercambio del code OAuth |
 | `/api/import` | Parseo de .docx / .txt / .pdf |
